@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 import jieba
 
 
@@ -67,22 +68,33 @@ def feature_extraction_fun():
     # 向量化
     count_vectorizer = CountVectorizer()
     a = count_vectorizer.fit_transform(splite_data)
-    print("特征名字：\n",count_vectorizer.get_feature_names())
+    print("特征名字：\n", count_vectorizer.get_feature_names())
     print(a)
     print(a.toarray())
     return None
 
+
 # 归一化
 def normalize_(data):
     # 根据最大最小值
-    minmax=MinMaxScaler(feature_range=(0,1))
-    minmax.fit_transform(data,)
+    minmax = MinMaxScaler(feature_range=(0, 1))
+    minmax.fit_transform(data, )
     # 根据均值和方差
-    stander=StandardScaler()
+    stander = StandardScaler()
     stander.fit_transform(data)
     return None
 
 
+def pca_demo(data):
+    # 降到2维
+    pca = PCA(2)
+    # 降到保留95%的信息量
+    # pca = PCA(0.95)
+    data_lower_dimension = pca.fit_transform(data)
+    return None
+
+
 if __name__ == '__main__':
-    # getData()
-    feature_extraction_fun()
+    getData()
+    # feature_extraction_fun()
+    # pca_demo()
