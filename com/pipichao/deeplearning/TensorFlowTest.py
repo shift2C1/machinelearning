@@ -1,5 +1,7 @@
 import tensorflow as tf
+# from  tensorflow.core.examples.tutorials.mnist import input_data
 import os
+import gzip
 
 os.environ["TF_APP_MIN_LOG_LEVEL"] = "2"
 tf = tf.compat.v1  # 2.0版本如何调用，先不管
@@ -34,7 +36,7 @@ def test_tf():
 # 求出 y=0.8x+0.7
 def linear_regression():
     # 定义变量,要学习的参数，
-    weight_ml = tf.Variable(initial_value=0.5,name="weight_ml initial_value")
+    weight_ml = tf.Variable(initial_value=0.5, name="weight_ml initial_value")
     bias_ml = tf.Variable(initial_value=0.5)
     # 训练集,正态分布随机产生100数字
     x_train = tf.random.normal([100, 1])
@@ -58,11 +60,10 @@ def linear_regression():
     # print(optimizer.values())
 
     # 收集运行过程的信息
-    tf.summary.scalar("mean_square_error",mean_square_error)
-    tf.summary.histogram("weight_ml",weight_ml)
-    tf.summary.histogram("bias_ml",bias_ml)
-    all_summary_info=tf.summary.merge_all()
-
+    tf.summary.scalar("mean_square_error", mean_square_error)
+    tf.summary.histogram("weight_ml", weight_ml)
+    tf.summary.histogram("bias_ml", bias_ml)
+    all_summary_info = tf.summary.merge_all()
 
     # 初始化变量
     init = tf.initialize_variables([weight_ml, bias_ml])
@@ -72,22 +73,71 @@ def linear_regression():
         session.run(init)
         print("初始值：weight_ml:%f,bias_ml:%f" % (weight_ml.eval(), bias_ml.eval()))
 
-
         # 输出到文件
 
-        file_writer=tf.summary.FileWriter("../../../tmp/lr",tf.get_default_graph())
+        file_writer = tf.summary.FileWriter("../../../tmp/lr", tf.get_default_graph())
 
         for i in range(100):
             session.run(optimizer)
             print("第%d次迭代的值：weight_ml:%f,bias_ml:%f" % (i + 1, weight_ml.eval(), bias_ml.eval()))
 
             # 收集到的信息输出到文件
-            info=session.run(all_summary_info)
-            file_writer.add_summary(info,i)
+            info = session.run(all_summary_info)
+            file_writer.add_summary(info, i)
     #         tensorboard --logdir=./tmp/lr 控制台执行命令可以查看输出的信息，访问 http://localhost:6006/
     return None
 
 
+# 手写数字识别
+def hand_writen_digits_recogenition():
+    train__input_path="t10k-images-idx3-ubyte.gz"
+    train_target_path="t10k-labels-idx1-ubyte.gz"
+    test_input_path="train-images-idx3-ubyte.gz"
+    test_target_path = "train-labels-idx1-ubyte.gz"
+    # 训练集数据
+    train_input_set=read_gzip_img(train__input_path)
+    print(train_input_set.shape)
+    train_target_set=read_gzip_lable(train_target_path)
+    print(train_target_set.shape)
+
+    return None
+
+
+import struct
+import numpy as np
+
+
+def read_gzip_img(file_path):
+    root_dir = "../../../data/digit/"
+    gzip_file = gzip.GzipFile(root_dir + file_path)
+    data = gzip_file.read()
+    magic, num, rows, columns, = struct.unpack(">iiii", data[:16])
+    dimession = rows * columns
+    X = np.zeros((num, rows, columns), dtype="uint8")
+    # print(X.shape)
+    offset = 16
+    for i in range(num):
+        a = np.frombuffer(data, dtype=np.int8, count=dimession, offset=offset)
+
+        X[i] = a.reshape((rows, columns))
+        offset = offset + dimession
+    # print(X[1].shape)
+    return X
+
+
+def read_gzip_lable(file_path):
+    root_dir = "../../../data/digit/"
+    gzip_file = gzip.GzipFile(root_dir + file_path)
+    data = gzip_file.read()
+    magic, num = struct.unpack(">ii", data[:8])
+    target = np.frombuffer(data, dtype=np.int8, count=num, offset=8)
+    # print(d)
+    return target
+
+
 if __name__ == '__main__':
     # test_tf()
-    linear_regression()
+    # linear_regression()
+    # read_gzip_img("data/digit/t10k-images-idx3-ubyte.gz")
+    # read_gzip_lable("data/digit/t10k-labels-idx1-ubyte.gz")
+    hand_writen_digits_recogenition()
