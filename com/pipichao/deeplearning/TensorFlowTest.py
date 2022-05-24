@@ -108,13 +108,15 @@ def hand_writen_digits_recogenition():
         reshaped_input[i] = np.array(train_input_set[1]).reshape([784, 1])
         # print()
 
+    target_vector_set = tf.one_hot(train_target_set, depth=10)
+
     # 784*1
     input_place_holder = tf.placeholder(shape=[784, 1], dtype=tf.float32)
     # 784*10
     weights = tf.Variable(initial_value=np.ones([784, 10]), dtype=tf.float32, shape=[784, 10])
-    # 10*1
+    # 1*10
     bias = tf.Variable(initial_value=np.ones([1, 10]), dtype=tf.float32)
-    # 10*1
+    # 1*10
     target_place_holder = tf.placeholder(shape=[1, 10], dtype=tf.int8)
 
     predict_output = tf.matmul(tf.transpose(input_place_holder), weights) + bias
@@ -130,15 +132,14 @@ def hand_writen_digits_recogenition():
 
         # 参数把占位符传进去
         # print(tf.one_hot(train_target_set[0]))
-        a = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 1]])
-        b = reshaped_input[0]
-        print(b.shape, a.transpose())
-        print(session.run(error, feed_dict={input_place_holder: b, target_place_holder: a}))
+        for i in range(20):
+            nn_input = reshaped_input[i]
+            nn_target = session.run([target_vector_set[i]])
+            _, loss = session.run([optimizer, error],
+                                  feed_dict={input_place_holder: nn_input, target_place_holder: nn_target})
+            print(loss)
 
     return None
-
-
-
 
 
 def read_gzip_img(file_path):
