@@ -2,6 +2,8 @@ import tensorflow as tf
 # from  tensorflow.core.examples.tutorials.mnist import input_data
 import os
 import gzip
+import struct
+import numpy as np
 
 os.environ["TF_APP_MIN_LOG_LEVEL"] = "2"
 tf = tf.compat.v1  # 2.0版本如何调用，先不管
@@ -90,21 +92,53 @@ def linear_regression():
 
 # 手写数字识别
 def hand_writen_digits_recogenition():
-    train__input_path="t10k-images-idx3-ubyte.gz"
-    train_target_path="t10k-labels-idx1-ubyte.gz"
-    test_input_path="train-images-idx3-ubyte.gz"
+    train__input_path = "t10k-images-idx3-ubyte.gz"
+    train_target_path = "t10k-labels-idx1-ubyte.gz"
+    test_input_path = "train-images-idx3-ubyte.gz"
     test_target_path = "train-labels-idx1-ubyte.gz"
     # 训练集数据
-    train_input_set=read_gzip_img(train__input_path)
-    print(train_input_set.shape)
-    train_target_set=read_gzip_lable(train_target_path)
-    print(train_target_set.shape)
+    train_input_set = read_gzip_img(train__input_path)
+    print("样本输入：\n", train_input_set.shape)
+    train_target_set = read_gzip_lable(train_target_path)
+    print("样本目标：\n", train_target_set.shape)
+
+    reshaped_input = np.zeros((10000, 784, 1))
+    # print(train_input_set[0])
+    for i in range(10000):
+        reshaped_input[i] = np.array(train_input_set[1]).reshape([784, 1])
+        # print()
+
+    # 784*1
+    input_place_holder = tf.placeholder(shape=[784, 1], dtype=tf.float32)
+    # 784*10
+    weights = tf.Variable(initial_value=np.ones([784, 10]), dtype=tf.float32, shape=[784, 10])
+    # 10*1
+    bias = tf.Variable(initial_value=np.ones([1, 10]), dtype=tf.float32)
+    # 10*1
+    target_place_holder = tf.placeholder(shape=[1, 10], dtype=tf.int8)
+
+    predict_output = tf.matmul(tf.transpose(input_place_holder), weights) + bias
+    print("预测输出：", predict_output)
+    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=target_place_holder, logits=predict_output)
+    error = tf.reduce_mean(cross_entropy)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01).minimize(error)
+    init = tf.global_variables_initializer()
+    with tf.Session() as session:
+        session.run(init)
+        # print("权重初始值：",weights.eval(),weights.shape)
+        # print("编制初始值：",bias.eval(),bias.shape)
+
+        # 参数把占位符传进去
+        # print(tf.one_hot(train_target_set[0]))
+        a = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 1]])
+        b = reshaped_input[0]
+        print(b.shape, a.transpose())
+        print(session.run(error, feed_dict={input_place_holder: b, target_place_holder: a}))
 
     return None
 
 
-import struct
-import numpy as np
+
 
 
 def read_gzip_img(file_path):
