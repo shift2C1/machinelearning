@@ -111,13 +111,13 @@ def hand_writen_digits_recogenition():
     target_vector_set = tf.one_hot(train_target_set, depth=10)
 
     # 784*1
-    input_place_holder = tf.placeholder(shape=[784, 1], dtype=tf.float32)
+    input_place_holder = tf.placeholder(shape=[784, None], dtype=tf.float32)
     # 784*10
     weights = tf.Variable(initial_value=np.ones([784, 10]), dtype=tf.float32, shape=[784, 10])
     # 1*10
     bias = tf.Variable(initial_value=np.ones([1, 10]), dtype=tf.float32)
     # 1*10
-    target_place_holder = tf.placeholder(shape=[1, 10], dtype=tf.int8)
+    target_place_holder = tf.placeholder(shape=[None, 10], dtype=tf.int8)
 
     predict_output = tf.matmul(tf.transpose(input_place_holder), weights) + bias
     print("预测输出：", predict_output)
@@ -155,6 +155,8 @@ def read_gzip_img(file_path):
         a = np.frombuffer(data, dtype=np.int8, count=dimession, offset=offset)
 
         X[i] = a.reshape((rows, columns))
+        if i==0:
+            print(X[i])
         offset = offset + dimession
     # print(X[1].shape)
     return X
