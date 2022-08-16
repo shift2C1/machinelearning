@@ -47,7 +47,7 @@ def split_train_test(data, test_ratio):
 
 
     # 用sklearn 可以实现同样的方式
-    result_with_sklearn=ms.train_test_split(data,test_size=0.2, random_state=42)
+    # result_with_sklearn=ms.train_test_split(data,test_size=0.2, random_state=42)
     return (test_set, train_set)
 
 
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     简单的查看一下数据本基本情况
     '''
     # 查看表头信息
-    # print(cvsdata.info())
+    print(cvsdata.info())
     #
     # # 查看前几行数据
     # # print(cvsdata.head(1))
