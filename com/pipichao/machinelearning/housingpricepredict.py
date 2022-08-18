@@ -31,7 +31,7 @@ def load_housing_data(housing_path=HOUSING_PATH):
 # 把数据分成测试集和验证集
 def split_train_test(data, test_ratio):
     # 数据打乱，返回乱序的数据索引
-    np.random.seed(seed=42) #设置随机种子，不然每次都是不同的测试集
+    np.random.seed(seed=42)  # 设置随机种子，不然每次都是不同的测试集
     disorder_indices = np.random.permutation(len(data))
     test_set_size = int(len(data) * test_ratio)
 
@@ -44,7 +44,6 @@ def split_train_test(data, test_ratio):
     # indexlocations
     test_set = data.iloc[test_set_indices]
     train_set = data.iloc[train_set_indices]
-
 
     # 用sklearn 可以实现同样的方式
     # result_with_sklearn=ms.train_test_split(data,test_size=0.2, random_state=42)
@@ -79,8 +78,25 @@ if __name__ == '__main__':
     #
     # plt.show()
 
-    test_train = split_train_test(cvsdata, 0.2)
-    test_set = t = test_train[0]
-    train_set = test_train[1]
-    print(np.shape(test_set))
-    print(np.shape(train_set))
+    # test_train = split_train_test(cvsdata, 0.2)
+    # test_set = t = test_train[0]
+    # train_set = test_train[1]
+    # print(np.shape(test_set))
+    # print(np.shape(train_set))
+
+    median_income = cvsdata["median_income"]
+    # median_income.hist()
+    # plt.show()
+    # median_income 是个连续变量，采样分成五类
+    income_cut = pd.cut(median_income,
+                        bins=[0., 1.5, 3.0, 4.5, 6., np.inf],
+                        labels=[1, 2, 3, 4, 5])
+    # cvsdata["income_cut"] = income_cut
+    # cvsdata["income_cut"].hist()
+    # plt.show()
+    # print(income_cut)
+
+    # 查看经纬度图像
+    # alpha=0.1 图像更模糊
+    cvsdata.plot(kind="scatter",x="longitude",y="latitude",alpha=0.1)
+    plt.show()
