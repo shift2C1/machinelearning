@@ -133,6 +133,14 @@ def gain_insight_of_data(cvsdata):
     cvsdata.plot(kind="scatter", x="median_income", y="median_house_value", alpha=0.1)
     plt.show()
 
+def prepare_data(cvsdata):
+    '''
+    为后续的算法准备数据，
+    :return:
+    '''
+    # 数据清洗：填充缺失的值，字符串数字化
+
+    return None
 
 if __name__ == '__main__':
     # fetch_housing_data()
