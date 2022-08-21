@@ -7,6 +7,7 @@ import numpy as np
 import sklearn as sk
 import sklearn.model_selection as ms
 import pandas.plotting as pandas_plotting
+import sklearn.impute as im
 
 DOWNLOAD_ROOT = "https://raw.githubusercontent.com/ageron/handson-ml2/master/"
 HOUSING_PATH = os.path.join("datasets", "housing")
@@ -138,7 +139,42 @@ def prepare_data(cvsdata):
     为后续的算法准备数据，
     :return:
     '''
+    print("数据清洗")
     # 数据清洗：填充缺失的值，字符串数字化
+    # 训练集
+
+    # 方法1：去除total_bedrooms 字段为所对应的数据
+    remove_null_record=cvsdata.copy().dropna(subset=["total_bedrooms"])
+    remove_null_record.info() #可以看到total_bedrooms为空的数据被去除了，数据的总数量去掉了
+
+    # 方法2：去除该列，不要这个维度的数据
+    remove_attr=cvsdata.copy().drop("total_bedrooms",axis=1) #axis : {0 or 'index', 1 or 'columns'}, default 0
+    remove_attr.info()  #可以看到少了一列数据
+
+    # 方法3：填充值，用中值，均值等
+    data_copy=cvsdata.copy()
+    median=data_copy["total_bedrooms"].median()
+    data_copy["total_bedrooms"].fillna(median,inplace=True)
+    data_copy.info() # 可以看到total_bedrooms这一列的数据不再缺失 和其他维度的数据总数都一样
+
+    print("使用sklearn的方式数据清洗")
+    # 使用sklearn的方式数据清洗
+    simple_imputer=im.SimpleImputer(strategy="median")
+    # SimpleImputer 只能操作数值类型的数据，得把非数值类型的去除 比如这批数据里的 ocean_proximity字段
+    cvsdata_pure_num=cvsdata.drop("ocean_proximity",axis=1)
+    simple_imputer.fit(cvsdata_pure_num)
+    print(simple_imputer.statistics_)
+    print(cvsdata_pure_num.median().values) #可以看到 中值完全相等
+    cvsdata_pure_num.info() #这个地方有点问题 为什么填充完值total_bedrooms 还是20433个非空，一共20640个
+
+    X=simple_imputer.transform(cvsdata_pure_num)
+    print(type(X)) #转换成了一个numpy的ndarray <class 'numpy.ndarray'>
+    print(X.shape) #(20640, 9)
+
+    # ndarray 转换成pandas的 DataFrame
+    print(cvsdata_pure_num.columns)
+    cvs_dat_tr=pd.DataFrame(X,columns=cvsdata_pure_num.columns)
+    print(type(cvs_dat_tr))
 
     return None
 
@@ -152,3 +188,5 @@ if __name__ == '__main__':
     # create_test_set(cvsdata)
 
     # gain_insight_of_data(cvsdata)
+
+    prepare_data(cvsdata)
