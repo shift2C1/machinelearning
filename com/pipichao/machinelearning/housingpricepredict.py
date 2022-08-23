@@ -10,6 +10,8 @@ import pandas.plotting as pandas_plotting
 import sklearn.impute as im
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 
 DOWNLOAD_ROOT = "https://raw.githubusercontent.com/ageron/handson-ml2/master/"
 HOUSING_PATH = os.path.join("datasets", "housing")
@@ -206,6 +208,35 @@ def handling_text_and_categorical_attribute(cvsdata):
     print(one_hot_encoder.categories_)
     return None
 
+def scaling_feature(cvsdata):
+    print("特征缩放")
+    data_num=cvsdata.drop("ocean_proximity",axis=1)
+    # 特征缩放，将所有的特征缩放到同一个范围，不然不具备可比性
+
+
+    # 归一化，将特征缩放至 0-1
+    '''
+    (x-min)/(max-min)
+    
+    '''
+    print("归一化")
+    min_max_scaler=MinMaxScaler()
+    normalized_data=min_max_scaler.fit_transform(data_num)
+    print(type(normalized_data)) # <class 'numpy.ndarray'>
+    print(normalized_data[0:3])
+
+    # 标准化 不在0-1之间
+    '''
+    (x-mean)/ standard deviation
+    '''
+    print("标准化")
+    standard_scaler=StandardScaler()
+    standardized_data=standard_scaler.fit_transform(data_num)
+    print(type(standardized_data))
+    if isinstance(standardized_data,type(standardized_data)):
+        print(standardized_data[0:3])
+    return None
+
 
 if __name__ == '__main__':
     # fetch_housing_data()
@@ -220,4 +251,7 @@ if __name__ == '__main__':
 
     # prepare_data(cvsdata)
 
-    handling_text_and_categorical_attribute(cvsdata)
+    # handling_text_and_categorical_attribute(cvsdata)
+
+    scaling_feature(cvsdata)
+
