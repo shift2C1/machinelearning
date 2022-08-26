@@ -6,48 +6,45 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
+from  sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import cross_val_score
 import numpy as np
-import  os
-
-
+import os
 
 housing_path = os.path.join("datasets", "housing")
 
-
 if __name__ == '__main__':
-
     csv_path = "D:\code\machinelearning\com\pipichao\machinelearning\datasets\housing\housing.csv"
-    housing_data_frame=read_csv(csv_path)
-    housing_data_frame_without_null_value =housing_data_frame.dropna(subset=["total_bedrooms"])
-    ocean_proximity=housing_data_frame_without_null_value[["ocean_proximity"]]
+    housing_data_frame = read_csv(csv_path)
+    housing_data_frame_without_null_value = housing_data_frame.dropna(subset=["total_bedrooms"])
+    ocean_proximity = housing_data_frame_without_null_value[["ocean_proximity"]]
 
-    one_hot_encoder=OrdinalEncoder()
+    one_hot_encoder = OrdinalEncoder()
 
-    ocean_proximity_code=one_hot_encoder.fit_transform(ocean_proximity)
+    ocean_proximity_code = one_hot_encoder.fit_transform(ocean_proximity)
 
     # 添加该列
-    housing_data_frame_without_null_value.insert(9,"ocean_proximity_code",ocean_proximity_code)
+    housing_data_frame_without_null_value.insert(9, "ocean_proximity_code", ocean_proximity_code)
     # 去除该列
-    pure_num_data=housing_data_frame_without_null_value.drop("ocean_proximity",axis=1)
-
+    pure_num_data = housing_data_frame_without_null_value.drop("ocean_proximity", axis=1)
 
     # 拆分数据集
-    train_set,test_set=train_test_split(pure_num_data,test_size=0.2,random_state=42)
+    train_set, test_set = train_test_split(pure_num_data, test_size=0.2, random_state=42)
 
     # 实际输出不应该参与维度缩放
-    train_input=train_set.drop("median_house_value",axis=1)
-    house_price=train_set[["median_house_value"]]
+    train_input = train_set.drop("median_house_value", axis=1)
+    house_price = train_set[["median_house_value"]]
 
-    test_input=test_set.drop("median_house_value",axis=1)
-    test_target=test_set[["median_house_value"]]
+    test_input = test_set.drop("median_house_value", axis=1)
+    test_target = test_set[["median_house_value"]]
 
     # 缩放特征
     # min_max_scaler = MinMaxScaler()
     # prepared_train_input=min_max_scaler.fit_transform(train_input)
     # prepared_test_input=min_max_scaler.fit_transform(test_input)
 
-    standard_scaler=StandardScaler()
+    standard_scaler = StandardScaler()
     prepared_train_input = standard_scaler.fit_transform(train_input)
     prepared_test_input = standard_scaler.fit_transform(test_input)
 
@@ -58,22 +55,42 @@ if __name__ == '__main__':
     # 训练模型
 
     # 使用线性回归
-    lr=LinearRegression()
-    lr.fit(prepared_train_input,house_price)
-    output=lr.predict(prepared_test_input)
-    mse=mean_squared_error(test_target,output)
-    print("误差：",np.sqrt(mse))
+    lr = LinearRegression()
+    lr.fit(prepared_train_input, house_price)
+    output = lr.predict(prepared_test_input)
+    mse = mean_squared_error(test_target, output)
+    print("线性回归误差：", np.sqrt(mse))
 
     # 可以看出结果：误差很大 误差： 93062.00772289146
 
     # 使用决策树回归
-    dt=DecisionTreeRegressor()
-    dt.fit(prepared_train_input,house_price)
-    dt_output=dt.predict(prepared_test_input)
-    dt_mse=mean_squared_error(test_target,dt_output)
-    print("误差：", np.sqrt(dt_mse))
+    dt = DecisionTreeRegressor()
+    dt.fit(prepared_train_input, house_price)
+    dt_output = dt.predict(prepared_test_input)
+    dt_mse = mean_squared_error(test_target, dt_output)
+    print("决策树误差：", np.sqrt(dt_mse))
 
     # 误差： 96688.75447734336
+
+    rfr = RandomForestRegressor()
+    rfr.fit(prepared_train_input, house_price.values.ravel())  # 其他的没有警告，这个不晓得为啥
+    rfr_output = rfr.predict(prepared_test_input)
+    rfr_mse = mean_squared_error(test_target, rfr_output)
+    print("随机森林误差:", np.sqrt(rfr_mse))
+
+    # 交叉验证
+    scores = cross_val_score(
+        # estimator=dt,
+        # estimator=lr,
+        estimator=rfr,
+                             X=prepared_train_input, y=house_price.values.ravel(), cv=10,
+                             scoring="neg_mean_squared_error")
+    tree_rmse_scores = np.sqrt(-scores)
+    print(tree_rmse_scores)
+    # 误差的均值
+    print("mean:",tree_rmse_scores.mean())
+    # 误差的 标准差
+    print("standard deviation",tree_rmse_scores.std())
 
 
 
