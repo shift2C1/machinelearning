@@ -6,9 +6,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
-from  sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import cross_val_score
+
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
 import numpy as np
 import os
 
@@ -83,16 +86,43 @@ if __name__ == '__main__':
         # estimator=dt,
         # estimator=lr,
         estimator=rfr,
-                             X=prepared_train_input, y=house_price.values.ravel(), cv=10,
-                             scoring="neg_mean_squared_error")
+        X=prepared_train_input, y=house_price.values.ravel(), cv=10,
+        scoring="neg_mean_squared_error")
     tree_rmse_scores = np.sqrt(-scores)
     print(tree_rmse_scores)
     # 误差的均值
-    print("mean:",tree_rmse_scores.mean())
+    print("mean:", tree_rmse_scores.mean())
     # 误差的 标准差
-    print("standard deviation",tree_rmse_scores.std())
+    print("standard deviation", tree_rmse_scores.std())
+
+    '''
+    优化模型
+    
+    '''
+    param_grid=[
+        {
+            "n_estimators": [3, 10, 30],
+            "max_features": [2, 4, 6, 8],
+        },
+        {
+            "bootstrap": [False],
+            "n_estimators": [3, 10],
+            "max_features": [2, 3, 4],
+        }
+    ]
+    forest_reg = RandomForestRegressor()
+    # 网格搜索 一共计算 cv*(3*4+2*3)次
+    grid_searchCV = GridSearchCV(estimator=forest_reg,param_grid=param_grid,
+                                 cv=5,scoring="neg_mean_squared_error",return_train_score=True)
+
+    grid_searchCV.fit(prepared_train_input,house_price.values.ravel())
+    best_params = grid_searchCV.best_params_
+    print("网格搜索：",best_params)
 
 
+    # 随机搜索
+    random_forest_fegressor=RandomForestRegressor()
+    random_forest_fegressor.fit()
 
     '''
     一下的流程有问题，但是有学习价值，先保留
