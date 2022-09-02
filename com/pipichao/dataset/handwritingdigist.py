@@ -1,5 +1,10 @@
 '''
 手写数字
+
+训练集：60000个
+测试集：10000个
+
+
 '''
 
 import numpy as np
@@ -36,14 +41,14 @@ def read_gzip_img(file_path):
     data = gzip_file.read()
     magic, num, rows, columns, = struct.unpack(">iiii", data[:16])
     dimession = rows * columns
-    X = np.zeros((num, rows, columns), dtype="uint8")
+    X = np.empty((num, rows, columns), dtype="uint8")
     # print(X.shape)
     offset = 16
     for i in range(num):
         a = np.frombuffer(data, dtype=np.int8, count=dimession, offset=offset)
         X[i] = a.reshape((rows, columns))
         offset = offset + dimession
-    print(X[1].shape)
+    # print(X[1].shape)
     return X
 
 
