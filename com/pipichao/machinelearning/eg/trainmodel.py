@@ -118,11 +118,12 @@ if __name__ == '__main__':
     grid_searchCV.fit(prepared_train_input,house_price.values.ravel())
     best_params = grid_searchCV.best_params_
     print("网格搜索：",best_params)
-
+    feature_importances_= grid_searchCV.best_estimator_.feature_importances_
+    print(feature_importances_)
 
     # 随机搜索
-    random_forest_fegressor=RandomForestRegressor()
-    random_forest_fegressor.fit()
+    # random_forest_fegressor=RandomForestRegressor()
+    # random_forest_fegressor.fit()
 
     '''
     一下的流程有问题，但是有学习价值，先保留

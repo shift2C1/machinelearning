@@ -7,27 +7,27 @@ import gzip
 import struct
 
 
-def read_train_set():
-    root_dir = "../../../../data/digit/"
-    train__input_path = "t10k-images-idx3-ubyte.gz"
-    train_target_path = "t10k-labels-idx1-ubyte.gz"
-    # 训练集数据
-    train_input_set = read_gzip_img(root_dir +train__input_path)
-    print("样本输入：\n", train_input_set.shape)
-    train_target_set = read_gzip_lable(root_dir +train_target_path)
-    print("样本目标：\n", train_target_set.shape)
-    return (train_input_set,train_target_set)
-
 def read_test_set():
     root_dir = "../../../../data/digit/"
-    test_input_path = "train-images-idx3-ubyte.gz"
-    test_target_path = "train-labels-idx1-ubyte.gz"
+    test__input_path = "t10k-images-idx3-ubyte.gz"
+    test_target_path = "t10k-labels-idx1-ubyte.gz"
     # 训练集数据
-    test_input_set = read_gzip_img(root_dir + test_input_path)
-    print("测试输入：\n", test_input_set.shape)
-    test_target_set = read_gzip_lable(root_dir + test_target_path)
-    print("测试目标：\n", test_target_set.shape)
-    return (test_input_set, test_target_set)
+    test_input_set = read_gzip_img(root_dir +test__input_path)
+    # print("样本输入：\n", train_input_set.shape)
+    test_target_set = read_gzip_lable(root_dir +test_target_path)
+    # print("样本目标：\n", train_target_set.shape)
+    return (test_input_set,test_target_set)
+
+def read_train_set():
+    root_dir = "../../../../data/digit/"
+    train_input_path = "train-images-idx3-ubyte.gz"
+    train_target_path = "train-labels-idx1-ubyte.gz"
+    # 训练集数据
+    train_input_set = read_gzip_img(root_dir + train_input_path)
+    # print("测试输入：\n", test_input_set.shape)
+    train_target_set = read_gzip_lable(root_dir + train_target_path)
+    # print("测试目标：\n", test_target_set.shape)
+    return (train_input_set, train_target_set)
 
 
 
